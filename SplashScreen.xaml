@@ -1,0 +1,23 @@
+﻿<Window x:Class="SemesterProject.SplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SplashScreen" Height="381" Width="500" Icon="Images/MainIcon.jpg" WindowStyle="None" AllowsTransparency="True" WindowStartupLocation="CenterScreen" >
+
+    <Grid MouseLeftButtonDown= "move1" Opacity="0.90">
+        <Grid >
+            <Image HorizontalAlignment="Left" Height="381" VerticalAlignment="Top" Width="500" Source="Images/SplashScreen.png" Stretch="UniformToFill" Opacity="0.95"/>
+            <Button Content="Start" HorizontalAlignment="Left" Margin="145,293,0,0" VerticalAlignment="Top" Width="207" Height="57" Background="#FF1578C4" FontFamily="The Font" FontSize="18" Foreground="White" Click="Button_Click" Opacity="0.98" BorderThickness="0,0,0,2" BorderBrush="#FF13588D"/>
+            <Button Content="" HorizontalAlignment="Left" Margin="463,5,0,0" VerticalAlignment="Top" Width="27" Height="20" BorderThickness="0" Click="Button_Click_1">
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Close-icon.png"/>
+                </Button.Background>
+            </Button>
+            <Button Content="" HorizontalAlignment="Left" Margin="413,1,0,0" VerticalAlignment="Top" Width="45" Height="29" BorderThickness="0" Click="Button_Click_2">
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Minimise-icon.png"/>
+                </Button.Background>
+            </Button>
+            <TextBlock HorizontalAlignment="Left" Height="20" Margin="10,8,0,0" TextWrapping="Wrap" Text="Matrix Calculator with OCR" VerticalAlignment="Top" Width="157" Foreground="White" FontFamily="Roboto Medium"/>
+        </Grid>
+    </Grid>
+</Window>

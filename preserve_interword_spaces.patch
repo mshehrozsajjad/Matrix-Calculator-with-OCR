@@ -1,0 +1,94 @@
+From 56997c58a9db05028b1c3a53c0f4b864b57106c2 Mon Sep 17 00:00:00 2001
+From: David Haraburda <david@haraburda.com>
+Date: Wed, 21 Jan 2015 15:52:07 -0600
+Subject: [PATCH] Add parameter and functionality to preserve multiple
+ interword spaces.
+
+---
+ ccmain/resultiterator.cpp | 12 ++++++++++--
+ ccmain/resultiterator.h   |  6 ++++++
+ ccmain/tesseractclass.cpp |  2 ++
+ ccmain/tesseractclass.h   |  1 +
+ 4 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/ccmain/resultiterator.cpp b/ccmain/resultiterator.cpp
+index 02bf598..c845c1b 100644
+--- a/ccmain/resultiterator.cpp
++++ b/ccmain/resultiterator.cpp
+@@ -34,6 +34,12 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit)
+     : LTRResultIterator(resit) {
+   in_minor_direction_ = false;
+   at_beginning_of_minor_run_ = false;
++   
++  BoolParam *p = ParamUtils::FindParam<BoolParam>(
++      "preserve_interword_spaces", GlobalParams()->bool_params,
++      tesseract_->params()->bool_params);
++  if (p != NULL) preserve_interword_spaces_ = (bool)(*p);
++
+   current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
+   MoveToLogicalStartOfTextline();
+ }
+@@ -629,14 +635,16 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING *text) {
+ 
+   int words_appended = 0;
+   do {
++    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() : 1; 
++    for(int i = 0 ; i < numSpaces ; ++i) {
++      *text += " ";
++    }
+     AppendUTF8WordText(text);
+     words_appended++;
+-    *text += " ";
+   } while (Next(RIL_WORD) && !IsAtBeginningOf(RIL_TEXTLINE));
+   if (BidiDebug(1)) {
+     tprintf("%d words printed\n", words_appended);
+   }
+-  text->truncate_at(text->length() - 1);
+   *text += line_separator_;
+   // If we just finished a paragraph, add an extra newline.
+   if (it_->block() == NULL || IsAtBeginningOf(RIL_PARA))
+diff --git a/ccmain/resultiterator.h b/ccmain/resultiterator.h
+index cde19f0..3b9ba7c 100644
+--- a/ccmain/resultiterator.h
++++ b/ccmain/resultiterator.h
+@@ -231,6 +231,12 @@ class TESS_API ResultIterator : public LTRResultIterator {
+ 
+   /** Is the currently pointed-at character in a minor-direction sequence? */
+   bool in_minor_direction_;
++
++  /** 
++   * Should detected inter-word spaces be preserved, or "compressed" to a single
++   * space character (default behavior).
++   */
++  bool preserve_interword_spaces_ = false;
+ };
+ 
+ }  // namespace tesseract.
+diff --git a/ccmain/tesseractclass.cpp b/ccmain/tesseractclass.cpp
+index d594966..3a6c9af 100644
+--- a/ccmain/tesseractclass.cpp
++++ b/ccmain/tesseractclass.cpp
+@@ -440,6 +440,8 @@ Tesseract::Tesseract()
+                   this->params()),
+     INT_MEMBER(tessedit_parallelize, 0, "Run in parallel where possible",
+                 this->params()),
++    BOOL_MEMBER(preserve_interword_spaces, false, 
++                "Preserve multiple interword spaces", this->params()),
+ 
+     // The following parameters were deprecated and removed from their original
+     // locations. The parameters are temporarily kept here to give Tesseract
+diff --git a/ccmain/tesseractclass.h b/ccmain/tesseractclass.h
+index 992c7ec..8a7c686 100644
+--- a/ccmain/tesseractclass.h
++++ b/ccmain/tesseractclass.h
+@@ -1009,6 +1009,7 @@ class Tesseract : public Wordrec {
+   double_VAR_H(textord_tabfind_aligned_gap_fraction, 0.75,
+                "Fraction of height used as a minimum gap for aligned blobs.");
+   INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
++  BOOL_VAR_H(preserve_interword_spaces, false, "Preserve multiple interword spaces");
+ 
+   // The following parameters were deprecated and removed from their original
+   // locations. The parameters are temporarily kept here to give Tesseract
+-- 
+2.1.0
+
